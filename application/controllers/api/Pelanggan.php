@@ -6,8 +6,6 @@ class Pelanggan extends CI_Controller
 {
 	public function get()
 	{
-		$this->db->where('id', 123);
-
 		$this->db->order_by('serialNumber', 'asc');
 		$pelanggan = $this->db->get('pelanggan')->result();
 
@@ -15,13 +13,10 @@ class Pelanggan extends CI_Controller
 
 		if (count($pelanggan) > 0) {
 			foreach ($pelanggan as $plg) {
-				$res['serialNumber'][$plg->serialNumber] =  [
-					'status' => $plg->status,
-					'selenoid' => $plg->selenoid
-				];
+				$res[$plg->serialNumber] =  [$plg->status, $plg->selenoid];
 			}
 		} else {
-			$res['serialNumber'] = [];
+			$res['sn'] = [];
 		}
 
 		echo json_encode($res);

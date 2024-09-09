@@ -19,7 +19,7 @@ boolean status_gps = false;
 
 #include <ArduinoJson.h>
 
-JsonDocument doc;
+DynamicJsonDocument doc(1024);  // Ubah ukuran buffer sesuai kebutuhan
 
 String serialNumber = "node-02";
 
@@ -44,7 +44,7 @@ void setup()
   LoRa.onTxDone(onTxDone);
   LoRa_rxMode();
 
-  doc["serialNumber"] = serialNumber;
+  doc["sn"] = serialNumber;
 
   pinMode(pinSelenoid, OUTPUT);
   digitalWrite(pinSelenoid, LOW);
@@ -56,7 +56,7 @@ void setup()
 
 void loop()
 {
-  if (runEvery(1000)) { // repeat every 1000 millis
+  if (runEvery(3000)) { // repeat every 3000 millis
     readGps();
   
     if (status_gps == true) {
@@ -114,6 +114,7 @@ void consumeJson(String message) {
   message.toCharArray(json, str_len);
 
   DynamicJsonDocument doc_2(1024);
+
   DeserializationError error = deserializeJson(doc_2, json);
 
   // Test if parsing succeeds.
@@ -123,8 +124,8 @@ void consumeJson(String message) {
     return;
   }
 
-  String statusPelanggan = doc_2["serialNumber"][serialNumber]["status"];
-  String statusSelenoid = doc_2["serialNumber"][serialNumber]["selenoid"];
+  String statusPelanggan = doc_2[serialNumber][0];
+  String statusSelenoid = doc_2[serialNumber][1];
 
   // Print values.
   Serial.println("Status Pelanggan : " + statusPelanggan);
@@ -151,16 +152,18 @@ void LoRa_sendMessage(String message) {
 }
 
 void onReceive(int packetSize) {
-  String message = "";
+  if (runEvery2(5000)) {
+    String message = "";
 
-  while (LoRa.available()) {
-    message += (char)LoRa.read();
+    while (LoRa.available()) {
+      message += (char)LoRa.read();
+    }
+  
+    Serial.print("Baca data dari gateway : ");
+    Serial.println(message);
+  
+    consumeJson(message);
   }
-
-  Serial.print("Baca data dari gateway : ");
-  Serial.println(message);
-
-  consumeJson(message);
 }
 
 void onTxDone() {
@@ -170,6 +173,18 @@ void onTxDone() {
 }
 
 boolean runEvery(unsigned long interval)
+{
+  static unsigned long previousMillis = 0;
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval)
+  {
+    previousMillis = currentMillis;
+    return true;
+  }
+  return false;
+}
+
+boolean runEvery2(unsigned long interval)
 {
   static unsigned long previousMillis = 0;
   unsigned long currentMillis = millis();
