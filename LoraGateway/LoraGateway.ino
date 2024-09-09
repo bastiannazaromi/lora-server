@@ -9,15 +9,18 @@ const int irqPin = 26;        // change for your board; must be a hardware inter
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char *ssid = "TIK Master";
-const char *password = "0625118301";
+const char *ssid = "Harapan Bersama";
+const char *password = "poltekharber";
 
-String host = "http://192.168.21.51/lora-swat/";
-String sendGps = "sendLatLong";
+String host = "https://192.168.22.122/lora-server/api/";
+String urlGetPelanggan = host + "pelanggan/get";
+String urlPostData = host + "data/post?sn=";
 
 #include <ArduinoJson.h>
 
 JsonDocument doc;
+
+String responGet = "", sn = "", lati = "", longi = "";
 
 void setup()
 {
@@ -36,6 +39,9 @@ void setup()
   Serial.println("");
   Serial.print("Connected to WiFi network with IP Address: ");
   Serial.println(WiFi.localIP());
+
+  Serial.println();
+  delay(1000);
 
   Serial.println("Timer set to 5 seconds (timerDelay variable), it will take 5 seconds before publishing the first reading.");
 
@@ -59,22 +65,23 @@ void setup()
   LoRa.onReceive(onReceive);
   LoRa.onTxDone(onTxDone);
   LoRa_rxMode();
-
-  doc["serialNumber"]["node-01"]["status"] = "ON";
 }
 
 void loop()
 {
   if (runEvery(5000))
-  { // repeat every 5000 millis
-    doc["serialNumber"]["node-01"]["selenoid"] = "OFF";
+  {
+    getPelanggan();
 
-    String json_message;
-    serializeJson(doc, json_message);
-
-    LoRa_sendMessage(json_message); // send a message
-
+    if (responGet != "") {
+      LoRa_sendMessage(responGet);
+    }
+   
     Serial.println("Send Message!");
+  }
+
+  if (runEvery3(5000)) {
+    postData();
   }
 }
 
@@ -96,15 +103,84 @@ void consumeJson(String message)
     return;
   }
 
-  String serialNumber = doc_2["serialNumber"];
+  String serialNumber = doc_2["sn"];
   String latitude = doc_2["data"]["latitude"];
   String longitude = doc_2["data"]["longitude"];
 
+  sn = serialNumber;
+  lati = latitude;
+  longi = longitude;
+  
   Serial.println("Serial Number : " + serialNumber);
   Serial.println("Latitude : " + latitude);
   Serial.println("Longitude : " + longitude);
 
   Serial.println();
+}
+
+void getPelanggan() {
+  if(WiFi.status()== WL_CONNECTED){
+    HTTPClient http;
+
+    // Your Domain name with URL path or IP address with path
+    http.begin(urlGetPelanggan.c_str());
+    
+    // If you need Node-RED/server authentication, insert user and password below
+    //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
+    
+    // Send HTTP GET request
+    int httpResponseCode = http.GET();
+    
+    if (httpResponseCode > 0) {
+      Serial.print("HTTP Response code : ");
+      Serial.println(httpResponseCode);
+      responGet = http.getString();
+      Serial.println("Respon dari server web : " + responGet);
+    }
+    else {
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
+
+      responGet = "";
+    }
+    // Free resources
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+}
+
+void postData() {
+  if(WiFi.status()== WL_CONNECTED){
+    HTTPClient http;
+
+    String serverPath = urlPostData + sn + "&lat=" + lati + "&long=" + longi;
+
+    // Your Domain name with URL path or IP address with path
+    http.begin(serverPath.c_str());
+    
+    // Send HTTP GET request
+    int httpResponseCode = http.GET();
+    
+    if (httpResponseCode > 0) {
+      Serial.print("HTTP Response code : ");
+      Serial.println(httpResponseCode);
+      responGet = http.getString();
+      Serial.println("Respon dari server web : " + responGet);
+    }
+    else {
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
+
+      responGet = "";
+    }
+    // Free resources
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
 }
 
 void LoRa_rxMode()
@@ -129,17 +205,19 @@ void LoRa_sendMessage(String message)
 
 void onReceive(int packetSize)
 {
-  String message = "";
+  if (runEvery2(3000)) {
+    String message = "";
 
-  while (LoRa.available())
-  {
-    message += (char)LoRa.read();
+    while (LoRa.available())
+    {
+      message += (char)LoRa.read();
+    }
+  
+    Serial.print("Baca data dari node : ");
+    Serial.println(message);
+  
+    consumeJson(message);
   }
-
-  Serial.print("Baca data dari node : ");
-  Serial.println(message);
-
-  consumeJson(message);
 }
 
 void onTxDone()
@@ -149,6 +227,30 @@ void onTxDone()
 }
 
 boolean runEvery(unsigned long interval)
+{
+  static unsigned long previousMillis = 0;
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval)
+  {
+    previousMillis = currentMillis;
+    return true;
+  }
+  return false;
+}
+
+boolean runEvery2(unsigned long interval)
+{
+  static unsigned long previousMillis = 0;
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval)
+  {
+    previousMillis = currentMillis;
+    return true;
+  }
+  return false;
+}
+
+boolean runEvery3(unsigned long interval)
 {
   static unsigned long previousMillis = 0;
   unsigned long currentMillis = millis();
