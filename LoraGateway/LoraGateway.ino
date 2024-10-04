@@ -20,7 +20,8 @@ String urlPostData = host + "data/post?sn=";
 
 JsonDocument doc;
 
-String responGet = "", sn = "", lati = "", longi = "";
+String responPostData = "", responGet = "", sn = "", lati = "", longi = "";
+float volume = 0, ntu = 0, ph = 0;
 
 void setup()
 {
@@ -83,6 +84,14 @@ void loop()
   if (runEvery3(5000)) {
     postData();
   }
+
+  if (runEvery4(6000)) {
+    postDataSensor();
+  }
+
+  if (runEvery5(4000)) {
+    postDataVolume();
+  }
 }
 
 void consumeJson(String message)
@@ -104,16 +113,27 @@ void consumeJson(String message)
   }
 
   String serialNumber = doc_2["sn"];
-  String latitude = doc_2["data"]["latitude"];
-  String longitude = doc_2["data"]["longitude"];
+  String latitude     = doc_2["data"]["latitude"];
+  String longitude    = doc_2["data"]["longitude"];
+  String nilai_volume = doc_2["data"]["volume"];
+  String nilai_ntu    = doc_2["data"]["ntu"];
+  String nilai_ph     = doc_2["data"]["ph"];
 
-  sn = serialNumber;
-  lati = latitude;
-  longi = longitude;
+  sn      = serialNumber;
+  lati    = latitude;
+  longi   = longitude;
+  volume  = nilai_volume.toFloat();
+  ntu     = nilai_ntu.toFloat();
+  ph      = nilai_ph.toFloat();
   
   Serial.println("Serial Number : " + serialNumber);
   Serial.println("Latitude : " + latitude);
   Serial.println("Longitude : " + longitude);
+  Serial.println();
+  Serial.println("Volume : " + nilai_volume + "mL");
+  Serial.println();
+  Serial.println("NTU : " + nilai_ntu);
+  Serial.println("PH : " + nilai_ph);
 
   Serial.println();
 }
@@ -166,14 +186,78 @@ void postData() {
     if (httpResponseCode > 0) {
       Serial.print("HTTP Response code : ");
       Serial.println(httpResponseCode);
-      responGet = http.getString();
-      Serial.println("Respon dari server web : " + responGet);
+      responPostData = http.getString();
+      Serial.println("Respon dari server web : " + responPostData);
     }
     else {
       Serial.print("Error code: ");
       Serial.println(httpResponseCode);
 
-      responGet = "";
+      responPostData = "";
+    }
+    // Free resources
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+}
+
+void postDataSensor() {
+  if(WiFi.status()== WL_CONNECTED){
+    HTTPClient http;
+
+    String serverPath = urlPostData + sn + "&ph=" + (String) ph + "&ntu=" + (String) ntu;
+
+    // Your Domain name with URL path or IP address with path
+    http.begin(serverPath.c_str());
+    
+    // Send HTTP GET request
+    int httpResponseCode = http.GET();
+    
+    if (httpResponseCode > 0) {
+      Serial.print("HTTP Response code : ");
+      Serial.println(httpResponseCode);
+      responPostData = http.getString();
+      Serial.println("Respon dari server web : " + responPostData);
+    }
+    else {
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
+
+      responPostData = "";
+    }
+    // Free resources
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+}
+
+void postDataVolume() {
+  if(WiFi.status()== WL_CONNECTED){
+    HTTPClient http;
+
+    String serverPath = urlPostData + sn + "&volume=" + (String) volume;
+
+    // Your Domain name with URL path or IP address with path
+    http.begin(serverPath.c_str());
+    
+    // Send HTTP GET request
+    int httpResponseCode = http.GET();
+    
+    if (httpResponseCode > 0) {
+      Serial.print("HTTP Response code : ");
+      Serial.println(httpResponseCode);
+      responPostData = http.getString();
+      Serial.println("Respon dari server web : " + responPostData);
+    }
+    else {
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
+
+      responPostData = "";
     }
     // Free resources
     http.end();
@@ -251,6 +335,30 @@ boolean runEvery2(unsigned long interval)
 }
 
 boolean runEvery3(unsigned long interval)
+{
+  static unsigned long previousMillis = 0;
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval)
+  {
+    previousMillis = currentMillis;
+    return true;
+  }
+  return false;
+}
+
+boolean runEvery4(unsigned long interval)
+{
+  static unsigned long previousMillis = 0;
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval)
+  {
+    previousMillis = currentMillis;
+    return true;
+  }
+  return false;
+}
+
+boolean runEvery5(unsigned long interval)
 {
   static unsigned long previousMillis = 0;
   unsigned long currentMillis = millis();
