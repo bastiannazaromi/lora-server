@@ -28,6 +28,7 @@
 						</div>
 						<div class="card-body">
 							<form action="<?= base_url('pelanggan/update'); ?>" method="post">
+								<input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>" style="display: none">
 								<input type="hidden" name="id" value="<?php echo $pelanggan->id; ?>">
 								<div class="form-group">
 									<label>Serial Number</label>

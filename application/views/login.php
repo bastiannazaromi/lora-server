@@ -39,6 +39,7 @@
 				<?php endif; ?>
 
 				<form action="<?php echo base_url('login/proses'); ?>" method="post">
+					<input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>" style="display: none">
 					<div class="input-group mb-3">
 						<input type="text" name="username" class="form-control" placeholder="Input yout username">
 						<div class="input-group-append">
