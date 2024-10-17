@@ -9,7 +9,7 @@
 				<div class="col-sm-6">
 					<ol class="breadcrumb float-sm-right">
 						<li class="breadcrumb-item"><a href="#">Home</a></li>
-						<li class="breadcrumb-item active">Dashboard v1</li>
+						<li class="breadcrumb-item active">Dashboard</li>
 					</ol>
 				</div><!-- /.col -->
 			</div><!-- /.row -->
@@ -32,71 +32,93 @@
 				</div>
 			<?php endif; ?>
 
-			<!-- Small boxes (Stat box) -->
 			<div class="row">
-				<div class="col-lg-3 col-6">
-					<!-- small box -->
-					<div class="small-box bg-info">
-						<div class="inner">
-							<h3>150</h3>
+				<?php if (count($pelanggan) > 0) : ?>
+					<?php foreach ($pelanggan as $i => $plg) : ?>
+						<?php
+						$this->db->where('serialNumber', $plg->serialNumber);
 
-							<p>New Orders</p>
-						</div>
-						<div class="icon">
-							<i class="ion ion-bag"></i>
-						</div>
-						<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-					</div>
-				</div>
-				<!-- ./col -->
-				<div class="col-lg-3 col-6">
-					<!-- small box -->
-					<div class="small-box bg-success">
-						<div class="inner">
-							<h3>53<sup style="font-size: 20px">%</sup></h3>
+						$this->db->order_by('tanggal', 'desc');
+						$waterflow = $this->db->get('waterflow', 1)->row();
 
-							<p>Bounce Rate</p>
-						</div>
-						<div class="icon">
-							<i class="ion ion-stats-bars"></i>
-						</div>
-						<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-					</div>
-				</div>
-				<!-- ./col -->
-				<div class="col-lg-3 col-6">
-					<!-- small box -->
-					<div class="small-box bg-warning">
-						<div class="inner">
-							<h3>44</h3>
+						$this->db->where('serialNumber', $plg->serialNumber);
 
-							<p>User Registrations</p>
-						</div>
-						<div class="icon">
-							<i class="ion ion-person-add"></i>
-						</div>
-						<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-					</div>
-				</div>
-				<!-- ./col -->
-				<div class="col-lg-3 col-6">
-					<!-- small box -->
-					<div class="small-box bg-danger">
-						<div class="inner">
-							<h3>65</h3>
+						$this->db->order_by('id', 'desc');
+						$sensor = $this->db->get('sensor', 1)->row();
 
-							<p>Unique Visitors</p>
+						$this->db->where('serialNumber', $plg->serialNumber);
+
+						$lokasi = $this->db->get('lokasi')->row();
+						?>
+						<div class="col-xl-12">
+							<div class="card">
+								<div class="card-header bg-secondary">
+									<h4><?= $plg->nama . ' - ' . $plg->serialNumber; ?></h4>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<?php if ($waterflow) : ?>
+											<div class="col-lg-4 col-6">
+												<div class="small-box bg-info">
+													<div class="inner">
+														<h3><?= $waterflow->volume; ?><sup style="font-size: 20px"> mL</sup></h3>
+
+														<p>Volume</p>
+													</div>
+													<div class="icon">
+														<i class="ion ion-bag"></i>
+													</div>
+												</div>
+											</div>
+										<?php endif; ?>
+										<?php if ($sensor) : ?>
+											<div class="col-lg-4 col-6">
+												<div class="small-box bg-success">
+													<div class="inner">
+														<h3><?= $sensor->ph; ?></h3>
+
+														<p>pH</p>
+													</div>
+													<div class="icon">
+														<i class="ion ion-stats-bars"></i>
+													</div>
+												</div>
+											</div>
+											<div class="col-lg-4 col-6">
+												<div class="small-box bg-warning">
+													<div class="inner">
+														<h3><?= $sensor->ntu; ?></h3>
+
+														<p>NTU</p>
+													</div>
+													<div class="icon">
+														<i class="ion ion-person-add"></i>
+													</div>
+												</div>
+											</div>
+										<?php endif; ?>
+									</div>
+									<?php if ($lokasi) : ?>
+										<div class="row">
+											<div class="col-lg-6">
+												<div class="card">
+													<div class="card-header">
+														<h5>Lokasi</h5>
+													</div>
+													<div class="card-body">
+														<iframe width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="<?= "https://maps.google.com/maps?q=" . $lokasi->latitude . "," . $lokasi->longitude . "&amp;output=embed"; ?>">
+														</iframe>
+													</div>
+												</div>
+											</div>
+										</div>
+									<?php endif; ?>
+								</div>
+							</div>
 						</div>
-						<div class="icon">
-							<i class="ion ion-pie-graph"></i>
-						</div>
-						<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-					</div>
-				</div>
-				<!-- ./col -->
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</div>
-			<!-- /.row -->
-		</div><!-- /.container-fluid -->
+		</div>
 	</section>
-	<!-- /.content -->
 </div>

@@ -12,13 +12,18 @@ class Admin extends CI_Controller
 
 			redirect('login', 'resfresh');
 		}
+
+		$this->load->model('M_Pelanggan', 'pelanggan');
 	}
 
 	public function index()
 	{
+		$pelanggan = $this->pelanggan->getAllPelanggan();
+
 		$data = [
-			'title' => 'Dashboard',
-			'page'  => 'admin/dashboard'
+			'title'     => 'Dashboard',
+			'page'      => 'admin/dashboard',
+			'pelanggan' => $pelanggan
 		];
 
 		$this->load->view('index', $data);

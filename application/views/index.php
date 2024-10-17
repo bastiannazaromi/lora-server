@@ -106,6 +106,12 @@
 								<p>Waterflow</p>
 							</a>
 						</li>
+						<li class="nav-item">
+							<a href="<?php echo base_url('lokasi'); ?>" class="nav-link">
+								<i class="nav-icon fas fa-map-marker-alt"></i>
+								<p>Lokasi</p>
+							</a>
+						</li>
 					</ul>
 				</nav>
 				<!-- /.sidebar-menu -->
