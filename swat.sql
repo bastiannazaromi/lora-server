@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 04, 2024 at 04:20 AM
+-- Generation Time: Oct 18, 2024 at 03:04 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 7.4.33
 
@@ -41,7 +41,8 @@ CREATE TABLE `lokasi` (
 --
 
 INSERT INTO `lokasi` (`id`, `serialNumber`, `latitude`, `longitude`, `createdAt`, `updatedAt`) VALUES
-(1, 'node-01', '123', '321', '2024-09-09 09:44:09', '2024-09-17 09:34:25');
+(1, 'node-01', '-6.868421511887271', '109.10775959584207', '2024-09-09 09:44:09', '2024-10-17 08:44:57'),
+(2, 'node-03', '-6.868894155305693', '109.119991156406', '2024-09-09 09:44:09', '2024-10-17 08:49:12');
 
 -- --------------------------------------------------------
 
@@ -52,8 +53,9 @@ INSERT INTO `lokasi` (`id`, `serialNumber`, `latitude`, `longitude`, `createdAt`
 CREATE TABLE `pelanggan` (
   `id` int(11) NOT NULL,
   `serialNumber` varchar(25) NOT NULL,
-  `status` enum('Aktif','Tidak Aktif') NOT NULL,
-  `selenoid` enum('ON','OFF') NOT NULL,
+  `nama` varchar(100) NOT NULL,
+  `status` enum('Aktif','Tidak Aktif') NOT NULL DEFAULT 'Tidak Aktif',
+  `selenoid` enum('ON','OFF') NOT NULL DEFAULT 'OFF',
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
   `updatedAt` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -62,9 +64,10 @@ CREATE TABLE `pelanggan` (
 -- Dumping data for table `pelanggan`
 --
 
-INSERT INTO `pelanggan` (`id`, `serialNumber`, `status`, `selenoid`, `createdAt`, `updatedAt`) VALUES
-(1, 'node-01', 'Aktif', 'ON', '2024-09-09 03:31:35', '2024-09-09 09:22:43'),
-(2, 'node-02', 'Tidak Aktif', 'OFF', '2024-09-09 03:31:35', NULL);
+INSERT INTO `pelanggan` (`id`, `serialNumber`, `nama`, `status`, `selenoid`, `createdAt`, `updatedAt`) VALUES
+(1, 'node-01', 'Pelanggan 1', 'Aktif', 'ON', '2024-09-09 03:31:35', '2024-10-15 01:37:35'),
+(2, 'node-02', 'Pelanggan 2', 'Tidak Aktif', 'OFF', '2024-09-09 03:31:35', '2024-10-15 01:37:40'),
+(4, 'node-03', 'Pelanggan 3', 'Tidak Aktif', 'OFF', '2024-10-15 02:03:45', NULL);
 
 -- --------------------------------------------------------
 
@@ -86,7 +89,32 @@ CREATE TABLE `sensor` (
 
 INSERT INTO `sensor` (`id`, `serialNumber`, `ph`, `ntu`, `createdAt`) VALUES
 (1, 'node-01', 3, 11, '2024-09-23 06:22:44'),
-(2, 'node-01', 3, 10, '2024-09-23 06:23:36');
+(2, 'node-02', 3, 10, '2024-09-23 06:23:36');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user`
+--
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `nama` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `username` varchar(20) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `tahun` int(11) NOT NULL,
+  `no_hp` varchar(14) NOT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `nama`, `email`, `username`, `password`, `tahun`, `no_hp`, `createdAt`, `updatedAt`) VALUES
+(1, 'Admin', 'admin@gmail.com', 'admin', '$2y$10$.pUHewzPqCdcnaOt5sUNf.FU6CTsEo.Rjki7jVeU7Bwb/cu74sN5K', 2024, '', '2024-03-13 07:13:19', '2024-04-19 01:34:44');
 
 -- --------------------------------------------------------
 
@@ -132,6 +160,12 @@ ALTER TABLE `sensor`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `waterflow`
 --
 ALTER TABLE `waterflow`
@@ -145,13 +179,13 @@ ALTER TABLE `waterflow`
 -- AUTO_INCREMENT for table `lokasi`
 --
 ALTER TABLE `lokasi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `pelanggan`
 --
 ALTER TABLE `pelanggan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `sensor`

@@ -50,7 +50,7 @@
 
 						$lokasi = $this->db->get('lokasi')->row();
 						?>
-						<div class="col-xl-12">
+						<div class="col-xl-6">
 							<div class="card">
 								<div class="card-header bg-secondary">
 									<h4><?= $plg->nama . ' - ' . $plg->serialNumber; ?></h4>
@@ -100,7 +100,7 @@
 									</div>
 									<?php if ($lokasi) : ?>
 										<div class="row">
-											<div class="col-lg-6">
+											<div class="col-lg-12">
 												<div class="card">
 													<div class="card-header">
 														<h5>Lokasi</h5>
