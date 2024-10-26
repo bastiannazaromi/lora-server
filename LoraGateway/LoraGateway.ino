@@ -12,7 +12,7 @@ const int irqPin = 26;        // change for your board; must be a hardware inter
 const char *ssid = "Harapan Bersama";
 const char *password = "poltekharber";
 
-String host = "https://192.168.22.122/lora-server/api/";
+String host = "http://loraswat.com/api/";
 String urlGetPelanggan = host + "pelanggan/get";
 String urlPostData = host + "data/post?sn=";
 
