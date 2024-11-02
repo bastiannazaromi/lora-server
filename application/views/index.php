@@ -19,6 +19,11 @@
 	<link rel="stylesheet" href="<?= base_url('assets/'); ?>plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 	<link rel="stylesheet" href="<?= base_url('assets/'); ?>plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 
+	<!-- Toggle -->
+	<link rel="stylesheet" href="<?= base_url('assets/'); ?>plugins/toggle/bootstrap4-toggle.min.css">
+	<!-- Toastr -->
+	<link rel="stylesheet" href="<?= base_url('assets/'); ?>plugins/toastr/toastr.min.css">
+
 	<!-- jQuery -->
 	<script src="<?php echo base_url('assets/'); ?>plugins/jquery/jquery.min.js"></script>
 	<!-- jQuery UI 1.11.4 -->
@@ -149,6 +154,11 @@
 	<script src="<?= base_url('assets/'); ?>plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 	<script src="<?= base_url('assets/'); ?>plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 	<script src="<?= base_url('assets/'); ?>plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+	<!-- toggle -->
+	<script src="<?= base_url('assets/'); ?>plugins/toggle/bootstrap4-toggle.min.js"></script>
+	<!-- toastr -->
+	<script src="<?= base_url('assets/'); ?>plugins/toastr/toastr.min.js"></script>
 
 	<script>
 		$(function() {

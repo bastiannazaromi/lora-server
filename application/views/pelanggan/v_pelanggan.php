@@ -63,8 +63,12 @@
 												<td><?php echo $i + 1; ?></td>
 												<td><?php echo $dt->serialNumber; ?></td>
 												<td><?php echo $dt->nama; ?></td>
-												<td><?php echo $dt->status; ?></td>
-												<td><?php echo $dt->selenoid; ?></td>
+												<td>
+													<input class="checkPublish" type="checkbox" data-toggle="toggle" name="status" value="<?= $dt->status; ?>" data-id="<?= $dt->id; ?>" data-col="status" <?= ($dt->status == 'Aktif') ? "checked" : ''; ?> data-on="Aktif" data-off="Tidak Aktif" data-onstyle="success" data-offstyle="danger">
+												</td>
+												<td>
+													<input class="checkPublish" type="checkbox" data-toggle="toggle" name="status" value="<?= $dt->selenoid; ?>" data-id="<?= $dt->id; ?>" data-col="selenoid" <?= ($dt->selenoid == 'ON') ? "checked" : ''; ?> data-on="ON" data-off="OFF" data-onstyle="success" data-offstyle="danger">
+												</td>
 												<td>
 													<div class="btn-group">
 														<a href="<?= base_url('pelanggan/edit/' . $dt->id); ?>" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
@@ -83,3 +87,50 @@
 		</div>
 	</section>
 </div>
+
+<script>
+	let checkPublish = $('.checkPublish');
+	$(checkPublish).each(function(i) {
+		$(checkPublish[i]).change(function() {
+			const id = $(this).data('id');
+			const col = $(this).data('col');
+			let status = $(this).val();
+
+			if (col === 'selenoid') {
+				if (status == 'OFF') {
+					status = 'ON';
+				} else {
+					status = 'OFF';
+				}
+			} else {
+				if (status == 'Tidak Aktif') {
+					status = 'Aktif';
+				} else {
+					status = 'Tidak Aktif';
+				}
+			}
+
+			$(this).val(status);
+
+			const data = {
+				id,
+				status,
+				col
+			};
+
+			$.ajax({
+				url: "<?= base_url('pelanggan/status'); ?>",
+				type: 'get',
+				data: data,
+				dataType: 'json',
+				success: function(result) {
+					if (result === 'ok') {
+						toastr.success('Berhasil diupdate');
+					} else {
+						toastr.error('Gagal diupdate');
+					}
+				}
+			});
+		})
+	});
+</script>

@@ -132,4 +132,20 @@ class Pelanggan extends CI_Controller
 			redirect($_SERVER['HTTP_REFERER'], 'refresh');
 		}
 	}
+
+	public function status()
+	{
+		$data = [
+			$this->input->get('col') => $this->input->get('status')
+		];
+
+		$this->db->where('id', $this->input->get('id'));
+		$update = $this->db->update('pelanggan', $data);
+
+		if ($update) {
+			echo json_encode('ok');
+		} else {
+			echo json_encode('gagal');
+		}
+	}
 }
