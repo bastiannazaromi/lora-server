@@ -70,6 +70,7 @@ void loop()
     Serial.println("Send Message!");
   }
 
+  /*
   if (statusRx == true) {
     if (runEvery3(5000)) {
       postData();
@@ -83,6 +84,7 @@ void loop()
       postDataVolume();
     }
   }
+  */
 }
 
 void consumeJson(String message)
@@ -264,7 +266,7 @@ void onReceive(int packetSize)
 
 void onTxDone()
 {
-  Serial.println("TxDone");
+  Serial.println("Berhasil kirim data ke node");
   LoRa_rxMode();
 }
 
