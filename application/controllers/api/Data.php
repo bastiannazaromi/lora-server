@@ -28,7 +28,7 @@ class Data extends CI_Controller
 			exit;
 		}
 
-		if (($lat != 0 && $lat != null && $lat != '') && ($long != 0 && $long != null && $long != '')) {
+		if (($lat != 0 && $lat != null && $lat != '' && $lat != '0') && ($long != 0 && $long != null && $long != '' && $long != '0')) {
 			$cek = $this->api->cekLokasi(['serialNumber' => $serialNumber]);
 
 			if (!$cek) {

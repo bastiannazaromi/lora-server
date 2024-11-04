@@ -16,13 +16,11 @@ String host = "https://loraswat.com/api/";
 String urlGetPelanggan = host + "pelanggan/get";
 String urlPostData = host + "data/post?sn=";
 
-#include <ArduinoJson.h>
-
-JsonDocument doc;
-
 String responPostData = "", responGet = "", sn = "", lati = "", longi = "";
 float volume = 0, ntu = 0, ph = 0;
 boolean statusRx = false;
+
+unsigned long oldTime;
 
 void setup()
 {
@@ -30,20 +28,10 @@ void setup()
   while (!Serial);
 
   WiFi.begin(ssid, password);
+  Serial.println();
   Serial.println("Connecting");
  
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
-
-  Serial.println();
-  delay(1000);
+  connectToWifi();
 
   Serial.println("Timer set to 5 seconds (timerDelay variable), it will take 5 seconds before publishing the first reading.");
 
@@ -99,44 +87,21 @@ void loop()
 
 void consumeJson(String message)
 {
-  int str_len = message.length() + 1;
-  char json[str_len];
-
-  message.toCharArray(json, str_len);
-
-  DynamicJsonDocument doc_2(1024);
-  DeserializationError error = deserializeJson(doc_2, json);
-
-  // Test if parsing succeeds.
-  if (error)
-  {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    return;
-  }
-
-  String serialNumber = doc_2["sn"];
-  String latitude     = doc_2["data"]["latitude"];
-  String longitude    = doc_2["data"]["longitude"];
-  String nilai_volume = doc_2["data"]["volume"];
-  String nilai_ntu    = doc_2["data"]["ntu"];
-  String nilai_ph     = doc_2["data"]["ph"];
-
-  sn      = serialNumber;
-  lati    = latitude;
-  longi   = longitude;
-  volume  = nilai_volume.toFloat();
-  ntu     = nilai_ntu.toFloat();
-  ph      = nilai_ph.toFloat();
+  sn      = getValue(message, '#', 0);
+  lati    = getValue(message, '#', 1);
+  longi   = getValue(message, '#', 2);
+  volume  = getValue(message, '#', 3).toFloat();
+  ntu     = getValue(message, '#', 4).toFloat();
+  ph      = getValue(message, '#', 5).toFloat();
   
-  Serial.println("Serial Number : " + serialNumber);
-  Serial.println("Latitude : " + latitude);
-  Serial.println("Longitude : " + longitude);
+  Serial.println("Serial Number : " + sn);
+  Serial.println("Latitude : " + lati);
+  Serial.println("Longitude : " + longi);
   Serial.println();
-  Serial.println("Volume : " + nilai_volume + "mL");
+  Serial.println("Volume : " + (String) volume + "mL");
   Serial.println();
-  Serial.println("NTU : " + nilai_ntu);
-  Serial.println("PH : " + nilai_ph);
+  Serial.println("NTU : " + (String) ntu);
+  Serial.println("PH : " + (String) ph);
 
   Serial.println();
 }
@@ -145,13 +110,8 @@ void getPelanggan() {
   if(WiFi.status()== WL_CONNECTED){
     HTTPClient http;
 
-    // Your Domain name with URL path or IP address with path
     http.begin(urlGetPelanggan.c_str());
     
-    // If you need Node-RED/server authentication, insert user and password below
-    //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
-    
-    // Send HTTP GET request
     int httpResponseCode = http.GET();
     
     if (httpResponseCode > 0) {
@@ -166,7 +126,7 @@ void getPelanggan() {
 
       responGet = "";
     }
-    // Free resources
+    
     http.end();
   }
   else {
@@ -175,15 +135,13 @@ void getPelanggan() {
 }
 
 void postData() {
-  if(WiFi.status()== WL_CONNECTED){
+  if(WiFi.status() == WL_CONNECTED){
     HTTPClient http;
 
     String serverPath = urlPostData + sn + "&lat=" + lati + "&long=" + longi;
 
-    // Your Domain name with URL path or IP address with path
     http.begin(serverPath.c_str());
     
-    // Send HTTP GET request
     int httpResponseCode = http.GET();
     
     if (httpResponseCode > 0) {
@@ -198,7 +156,7 @@ void postData() {
 
       responPostData = "";
     }
-    // Free resources
+
     http.end();
   }
   else {
@@ -207,15 +165,13 @@ void postData() {
 }
 
 void postDataSensor() {
-  if(WiFi.status()== WL_CONNECTED){
+  if(WiFi.status() == WL_CONNECTED){
     HTTPClient http;
 
     String serverPath = urlPostData + sn + "&ph=" + (String) ph + "&ntu=" + (String) ntu;
 
-    // Your Domain name with URL path or IP address with path
     http.begin(serverPath.c_str());
     
-    // Send HTTP GET request
     int httpResponseCode = http.GET();
     
     if (httpResponseCode > 0) {
@@ -230,7 +186,7 @@ void postDataSensor() {
 
       responPostData = "";
     }
-    // Free resources
+    
     http.end();
   }
   else {
@@ -239,15 +195,13 @@ void postDataSensor() {
 }
 
 void postDataVolume() {
-  if(WiFi.status()== WL_CONNECTED){
+  if(WiFi.status() == WL_CONNECTED){
     HTTPClient http;
 
     String serverPath = urlPostData + sn + "&volume=" + (String) volume;
 
-    // Your Domain name with URL path or IP address with path
     http.begin(serverPath.c_str());
     
-    // Send HTTP GET request
     int httpResponseCode = http.GET();
     
     if (httpResponseCode > 0) {
@@ -262,7 +216,7 @@ void postDataVolume() {
 
       responPostData = "";
     }
-    // Free resources
+    
     http.end();
   }
   else {
@@ -372,4 +326,36 @@ boolean runEvery5(unsigned long interval)
     return true;
   }
   return false;
+}
+
+void connectToWifi() {
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(1000);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  Serial.println();
+  delay(1000);
+}
+
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.length()-1;
+ 
+  for(int i=0; i <= maxIndex && found <= index; i++){
+    if(data.charAt(i) == separator || i == maxIndex){
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  } 
+ 
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
