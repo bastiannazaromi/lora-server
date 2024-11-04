@@ -9,10 +9,10 @@ const int irqPin = 26;        // change for your board; must be a hardware inter
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char *ssid = "Harapan Bersama";
-const char *password = "poltekharber";
+const char *ssid = "Loraswat";
+const char *password = "12345678";
 
-String host = "http://loraswat.com/api/";
+String host = "https://loraswat.com/api/";
 String urlGetPelanggan = host + "pelanggan/get";
 String urlPostData = host + "data/post?sn=";
 
@@ -22,6 +22,7 @@ JsonDocument doc;
 
 String responPostData = "", responGet = "", sn = "", lati = "", longi = "";
 float volume = 0, ntu = 0, ph = 0;
+boolean statusRx = false;
 
 void setup()
 {
@@ -81,16 +82,18 @@ void loop()
     Serial.println("Send Message!");
   }
 
-  if (runEvery3(5000)) {
-    postData();
-  }
-
-  if (runEvery4(6000)) {
-    postDataSensor();
-  }
-
-  if (runEvery5(4000)) {
-    postDataVolume();
+  if (statusRx == true) {
+    if (runEvery3(5000)) {
+      postData();
+    }
+  
+    if (runEvery4(6000)) {
+      postDataSensor();
+    }
+  
+    if (runEvery5(4000)) {
+      postDataVolume();
+    }
   }
 }
 
@@ -299,7 +302,8 @@ void onReceive(int packetSize)
   
     Serial.print("Baca data dari node : ");
     Serial.println(message);
-  
+
+    statusRx = true;
     consumeJson(message);
   }
 }

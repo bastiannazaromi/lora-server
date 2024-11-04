@@ -1,7 +1,6 @@
 RewriteEngine On
-<FilesMatch "\.(php4|php5|php3|php2|php|phtml)$">
-    SetHandler application/x-lsphp74
-</FilesMatch>
+
+
 
 RewriteCond %{HTTPS}  !=on
 RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
@@ -10,4 +9,3 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php/$1 [L]
 
 RewriteRule ^.git/*.*$ - [L,R=404]
-

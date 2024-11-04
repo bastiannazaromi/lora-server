@@ -52,6 +52,11 @@ const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 #define pinTurbidity A0
 unsigned long oldTime2;
 
+#define pinPh A0
+unsigned long int avgValue;
+float b;
+int buf[10], temp;
+unsigned long oldTime3;
 
 String serialNumber = "node-01";
 
@@ -82,7 +87,7 @@ void setup()
 
   // Setup Selenoid
   pinMode(pinSelenoid, OUTPUT);
-  digitalWrite(pinSelenoid, LOW);
+  digitalWrite(pinSelenoid, HIGH);
 
   // Setup WaterFlow
   pinMode(flowsensor, INPUT);
@@ -111,6 +116,7 @@ void loop()
 {
   bacaWaterFlow();
   bacaTurbidity();
+  //bacaPh();
   
   if (runEvery(3000)) { // repeat every 3000 millis
     readGps();
@@ -172,7 +178,7 @@ void consumeJson(String message) {
   
   message.toCharArray(json, str_len);
 
-  DynamicJsonDocument doc_2(1024);
+  DynamicJsonDocument doc_2(96);
 
   DeserializationError error = deserializeJson(doc_2, json);
 
@@ -191,9 +197,9 @@ void consumeJson(String message) {
   Serial.println("Status Selenoid : " + statusSelenoid);
 
   if (statusSelenoid == "ON") {
-    digitalWrite(pinSelenoid, HIGH);
-  } else {
     digitalWrite(pinSelenoid, LOW);
+  } else {
+    digitalWrite(pinSelenoid, HIGH);
   }
 
   Serial.println();
@@ -225,6 +231,13 @@ void bacaWaterFlow() {
 
     attachInterrupt(sensorInt, pulseCounter, FALLING);
   }
+}
+
+
+void pulseCounter()
+{
+  // Increment the pulse counter
+  pulseCount++;
 }
 
 void bacaTurbidity() {
@@ -262,10 +275,46 @@ void bacaTurbidity() {
   }
 }
 
-void pulseCounter()
-{
-  // Increment the pulse counter
-  pulseCount++;
+void bacaPh() {
+  if ((millis() - oldTime3) > 5000)
+  {
+    oldTime3 = millis();
+
+    for (int i = 0; i < 10; i++)       //Get 10 sample value from the sensor for smooth the value
+    { 
+      buf[i] = analogRead(pinPh);
+      delay(10);
+    }
+    
+    for (int i = 0; i < 9; i++)        //sort the analog from small to large
+    {
+      for (int j = i + 1; j < 10; j++)
+      {
+        if (buf[i] > buf[j])
+        {
+          temp = buf[i];
+          buf[i] = buf[j];
+          buf[j] = temp;
+        }
+      }
+    }
+    
+    avgValue = 0;
+    
+    for (int i = 2; i < 8; i++) {                      //take the average value of 6 center sample
+      avgValue+=buf[i];
+    }
+    
+    float phValue = (float) avgValue * 5.0 / 1024 / 6; //convert the analog into millivolt
+    phValue = 3.5 * phValue;                      //convert the millivolt into pH value
+    
+    Serial.print("pH : ");  
+    Serial.println(phValue, 2);
+ 
+    doc["data"]["ph"] = String(phValue, 2);
+    
+    Serial.println();
+  }
 }
 
 void LoRa_rxMode(){
