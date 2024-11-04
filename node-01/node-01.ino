@@ -21,7 +21,7 @@ boolean status_gps = false;
 
 // WATER FLOW
 byte sensorInt    = 1;
-byte flowsensor   = 2;
+byte flowsensor   = 3;
 float konstanta   = 6; //konstanta flow meter
 volatile byte pulseCount;
 float debit;
@@ -108,7 +108,7 @@ void setup()
 
 void loop()
 {
-  //bacaWaterFlow();
+  bacaWaterFlow();
   //bacaTurbidity();
   //bacaPh();
   
