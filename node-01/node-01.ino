@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <LoRa.h>
 
-const long frequency = 926E6;  // LoRa Frequency
+const long frequency = 915E6;  // LoRa Frequency
 
 const int csPin = 10;          // LoRa radio chip select
 const int resetPin = 9;        // LoRa radio reset
@@ -112,7 +112,7 @@ void loop()
   //bacaTurbidity();
   //bacaPh();
   
-  if (runEvery(1000)) { // repeat every 3000 millis
+  if (runEvery(2000)) { // repeat every 3000 millis
     readGps();
   
     if (status_gps == false) {
@@ -120,9 +120,7 @@ void loop()
       LongitudeString = "0";
     }
 
-    //String message = (String) serialNumber + "#" + (String) LatitudeString + "#" + (String) LongitudeString + "#" + (String) totalmlt + "#" + (String) ntu + "#" + String(phValue, 2) + "#OK";
-
-    String msg = "node-01#0#0#0.00#0.00#0.00#OK";
+    String msg = (String) serialNumber + "#" + (String) LatitudeString + "#" + (String) LongitudeString + "#" + (String) totalmlt + "#" + (String) ntu + "#" + String(phValue, 2) + "#OK";
     
     Serial.println();
 

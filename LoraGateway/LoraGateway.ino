@@ -1,7 +1,7 @@
 #include <SPI.h> // include libraries
 #include <LoRa.h>
 
-const long frequency = 926E6; // LoRa Frequency
+const long frequency = 915E6; // LoRa Frequency
 const int csPin = 18;         // LoRa radio chip select
 const int resetPin = 12;      // LoRa radio reset
 const int irqPin = 26;        // change for your board; must be a hardware interrupt pin
@@ -9,8 +9,8 @@ const int irqPin = 26;        // change for your board; must be a hardware inter
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char *ssid = "Loraswat";
-const char *password = "12345678";
+const char *ssid = "PoltekHarber_Lab1";
+const char *password = "poltekharber";
 
 String host = "https://loraswat.com/api/";
 String urlGetPelanggan = host + "pelanggan/get";
