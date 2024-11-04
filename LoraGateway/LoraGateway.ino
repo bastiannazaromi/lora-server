@@ -248,7 +248,7 @@ void LoRa_sendMessage(String message)
 
 void onReceive(int packetSize)
 {
-  if (runEvery2(3000)) {
+  if (runEvery2(2000)) {
     String message = "";
 
     while (LoRa.available())

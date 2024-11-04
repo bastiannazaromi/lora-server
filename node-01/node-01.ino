@@ -112,7 +112,7 @@ void loop()
   //bacaTurbidity();
   //bacaPh();
   
-  if (runEvery(3000)) { // repeat every 3000 millis
+  if (runEvery(2000)) { // repeat every 3000 millis
     readGps();
   
     if (status_gps == false) {
@@ -124,7 +124,7 @@ void loop()
     
     Serial.println();
 
-    Serial.println(message);
+    Serial.println("Kirim ke Gateway : " + message);
     LoRa_sendMessage(message); // send a message
   }
 
@@ -308,7 +308,7 @@ void LoRa_sendMessage(String message) {
 }
 
 void onReceive(int packetSize) {
-  if (runEvery2(3000)) {
+  if (runEvery2(5000)) {
     String message = "";
 
     while (LoRa.available()) {
