@@ -13,13 +13,12 @@ class Pelanggan extends CI_Controller
 
 		if (count($pelanggan) > 0) {
 			foreach ($pelanggan as $plg) {
-				$res[$plg->serialNumber] =  [$plg->status, $plg->selenoid];
+				$res[] =
+					$plg->serialNumber . '#' . $plg->status . '#' . $plg->selenoid . '#OK';
 			}
-		} else {
-			$res['sn'] = [];
 		}
 
-		echo json_encode($res);
+		echo implode('|-|', $res) . '|-|OK';
 	}
 }
 
