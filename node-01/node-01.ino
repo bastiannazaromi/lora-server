@@ -112,7 +112,7 @@ void loop()
   //bacaTurbidity();
   //bacaPh();
   
-  if (runEvery(2000)) { // repeat every 3000 millis
+  if (runEvery(1000)) { // repeat every 3000 millis
     readGps();
   
     if (status_gps == false) {
@@ -120,12 +120,14 @@ void loop()
       LongitudeString = "0";
     }
 
-    String message = (String) serialNumber + "#" + (String) LatitudeString + "#" + (String) LongitudeString + "#" + (String) totalmlt + "#" + (String) ntu + "#" + String(phValue, 2) + "#OK";
+    //String message = (String) serialNumber + "#" + (String) LatitudeString + "#" + (String) LongitudeString + "#" + (String) totalmlt + "#" + (String) ntu + "#" + String(phValue, 2) + "#OK";
+
+    String msg = "node-01#0#0#0.00#0.00#0.00#OK";
     
     Serial.println();
 
-    Serial.println("Kirim ke Gateway : " + message);
-    LoRa_sendMessage(message); // send a message
+    Serial.println("Kirim ke Gateway : " + msg);
+    LoRa_sendMessage(msg); // send a message
   }
 
   delay(200);
@@ -308,7 +310,7 @@ void LoRa_sendMessage(String message) {
 }
 
 void onReceive(int packetSize) {
-  if (runEvery2(5000)) {
+  if (runEvery2(3000)) {
     String message = "";
 
     while (LoRa.available()) {

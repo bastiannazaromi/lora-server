@@ -59,7 +59,7 @@ void setup()
 
 void loop()
 {
-  if (runEvery(5000))
+  if (runEvery(3000))
   {
     getPelanggan();
 
@@ -70,7 +70,6 @@ void loop()
     Serial.println("Send Message!");
   }
 
-  /*
   if (statusRx == true) {
     if (runEvery3(5000)) {
       postData();
@@ -84,7 +83,6 @@ void loop()
       postDataVolume();
     }
   }
-  */
 }
 
 void consumeJson(String message)
@@ -248,20 +246,18 @@ void LoRa_sendMessage(String message)
 
 void onReceive(int packetSize)
 {
-  if (runEvery2(2000)) {
-    String message = "";
+  String message = "";
 
-    while (LoRa.available())
-    {
-      message += (char)LoRa.read();
-    }
-  
-    Serial.print("Baca data dari node : ");
-    Serial.println(message);
-
-    statusRx = true;
-    consumeJson(message);
+  while (LoRa.available())
+  {
+    message += (char)LoRa.read();
   }
+
+  Serial.print("Baca data dari node : ");
+  Serial.println(message);
+
+  statusRx = true;
+  consumeJson(message);
 }
 
 void onTxDone()
