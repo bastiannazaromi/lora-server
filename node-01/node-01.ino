@@ -30,25 +30,14 @@ float totalmlt;
 unsigned long oldTime;
 float liter       = 0;
 
-// TURBIDITY
-#include "Wire.h"
+// Turbidity
+int pinTurbidity = A0;
+float ntu, teg, kalibrasi = 11.0;
 
-// Arrays to save our results in
-unsigned long start_times[300];
-unsigned long stop_times[300];
-unsigned long values[300];
-
-// Define various ADC prescaler
-const unsigned char PS_16 = (1 << ADPS2);
-const unsigned char PS_32 = (1 << ADPS2) | (1 << ADPS0);
-const unsigned char PS_64 = (1 << ADPS2) | (1 << ADPS1);
-const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
-
-#define pinTurbidity A0
 unsigned long oldTime2;
-float ntu;
 
-#define pinPh A0
+// PH
+#define pinPh A1
 unsigned long int avgValue;
 float b, phValue;
 int buf[10], temp;
@@ -95,14 +84,6 @@ void setup()
 
   attachInterrupt(sensorInt, pulseCounter, FALLING);
 
-  // Setup Turbidity
-    // set up the ADC
-  ADCSRA &= ~PS_128;  // remove bits set by Arduino library
-
-  // you can choose a prescaler from above.
-  // PS_16, PS_32, PS_64 or PS_128
-  ADCSRA |= PS_64;    // set our own prescaler to 64
-  
   Serial.println();
 }
 
@@ -222,29 +203,19 @@ void bacaTurbidity() {
   {
     oldTime2 = millis();
     
-    unsigned int i;
-    unsigned int z;
-    z = 0;
-     
-    // capture the values to memory
-    for(i = 0; i < 300; i++) {
-      start_times[i] = micros();
-      values[i] = analogRead(pinTurbidity);             
-   
-      if (values[i] >= z) {
-        z = values[i]; 
-      }
-     
-      stop_times[i] = micros();
+    int sensorValue = analogRead(pinTurbidity);
+    teg = sensorValue * (5.0 / 1024.0);
+    ntu = 100 - (sensorValue / 10.24) - kalibrasi;
+
+    if (ntu < 0) {
+      ntu = 0;
     }
-   
-    ntu = (z - 912.5) / -0.279;
-      
-    Serial.print("ADC : ");
-    Serial.println(z);
-   
+  
+    Serial.print("Sensor Turbidity Output (V) : ");
+    Serial.println(teg);
     Serial.print("NTU : ");
     Serial.println(ntu);
+    Serial.print("\n");
     
     Serial.println();
   }

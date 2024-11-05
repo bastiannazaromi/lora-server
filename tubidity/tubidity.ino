@@ -51,3 +51,29 @@ void loop(){
  
   delay(1000);
 }
+
+// Turbidity
+int pinTurbidity = A0;
+float kekeruhan;
+float teg;
+String air;
+
+void setup() {
+  Serial.begin(9600); // Inisialisasi komunikasi serial
+}
+
+void loop() {
+  int sensorValue = analogRead(A0);
+  teg = sensorValue * (5.0 / 1024.0);
+  kekeruhan = 100 - (sensorValue / 10.24);
+
+  Serial.print("Sensor Turbidity Output (V) : ");
+  Serial.println(teg);
+  Serial.print("Kekeruhan Air : ");
+  Serial.println(kekeruhan);
+  Serial.print("\n");
+
+
+  delay(1000); // Tunggu 1 detik sebelum pengukuran berikutnya
+}
+
