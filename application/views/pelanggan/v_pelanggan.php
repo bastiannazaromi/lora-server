@@ -53,7 +53,7 @@
 											<th>Serial Num</th>
 											<th>Nama Pelanggan</th>
 											<th>Status</th>
-											<th>Status Selenoid</th>
+											<th>Status Kran</th>
 											<th>Action</th>
 										</tr>
 									</thead>
@@ -67,7 +67,7 @@
 													<input class="checkPublish" type="checkbox" data-toggle="toggle" name="status" value="<?= $dt->status; ?>" data-id="<?= $dt->id; ?>" data-col="status" <?= ($dt->status == 'Aktif') ? "checked" : ''; ?> data-on="Aktif" data-off="Tidak Aktif" data-onstyle="success" data-offstyle="danger">
 												</td>
 												<td>
-													<input class="checkPublish" type="checkbox" data-toggle="toggle" name="status" value="<?= $dt->selenoid; ?>" data-id="<?= $dt->id; ?>" data-col="selenoid" <?= ($dt->selenoid == 'ON') ? "checked" : ''; ?> data-on="ON" data-off="OFF" data-onstyle="success" data-offstyle="danger">
+													<input class="checkPublish" type="checkbox" data-toggle="toggle" name="status" value="<?= ($dt->selenoid == 'ON') ? 'Tutup' : 'Buka'; ?>" data-id="<?= $dt->id; ?>" data-col="selenoid" <?= ($dt->selenoid == 'OFF') ? "checked" : ''; ?> data-on="Buka" data-off="Tutup" data-onstyle="success" data-offstyle="danger">
 												</td>
 												<td>
 													<div class="btn-group">
@@ -97,10 +97,14 @@
 			let status = $(this).val();
 
 			if (col === 'selenoid') {
-				if (status == 'OFF') {
+				if (status == 'Buka') {
 					status = 'ON';
+
+					$(this).val('Tutup');
 				} else {
 					status = 'OFF';
+
+					$(this).val('Buka');
 				}
 			} else {
 				if (status == 'Tidak Aktif') {
@@ -108,9 +112,9 @@
 				} else {
 					status = 'Tidak Aktif';
 				}
-			}
 
-			$(this).val(status);
+				$(this).val(status);
+			}
 
 			const data = {
 				id,
