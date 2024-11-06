@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <LoRa.h>
 
-const long frequency = 926E6;  // LoRa Frequency
+const long frequency = 915E6;  // LoRa Frequency
 
 const int csPin = 10;          // LoRa radio chip select
 const int resetPin = 9;        // LoRa radio reset
@@ -19,14 +19,9 @@ float Latitude , Longitude;
 String LatitudeString, LongitudeString;
 boolean status_gps = false;
 
-// JSON
-#include <ArduinoJson.h>
-
-DynamicJsonDocument doc(1024);  // Ubah ukuran buffer sesuai kebutuhan
-
 // WATER FLOW
 byte sensorInt    = 1;
-byte flowsensor   = 2;
+byte flowsensor   = 3;
 float konstanta   = 6; //konstanta flow meter
 volatile byte pulseCount;
 float debit;
@@ -35,32 +30,22 @@ float totalmlt;
 unsigned long oldTime;
 float liter       = 0;
 
-// TURBIDITY
-#include "Wire.h"
+// Turbidity
+int pinTurbidity = A0;
+float ntu, teg, kalibrasi = 11.0;
 
-// Arrays to save our results in
-unsigned long start_times[300];
-unsigned long stop_times[300];
-unsigned long values[300];
-
-// Define various ADC prescaler
-const unsigned char PS_16 = (1 << ADPS2);
-const unsigned char PS_32 = (1 << ADPS2) | (1 << ADPS0);
-const unsigned char PS_64 = (1 << ADPS2) | (1 << ADPS1);
-const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
-
-#define pinTurbidity A0
 unsigned long oldTime2;
 
-#define pinPh A0
+// PH
+#define pinPh A1
 unsigned long int avgValue;
-float b;
+float b, phValue;
 int buf[10], temp;
 unsigned long oldTime3;
 
-String serialNumber = "node-02";
-
 #define pinSelenoid 7
+
+String serialNumber = "node-02";
 
 void setup()
 {
@@ -83,8 +68,6 @@ void setup()
   LoRa.onTxDone(onTxDone);
   LoRa_rxMode();
 
-  doc["sn"] = serialNumber;
-
   // Setup Selenoid
   pinMode(pinSelenoid, OUTPUT);
   digitalWrite(pinSelenoid, LOW);
@@ -101,41 +84,29 @@ void setup()
 
   attachInterrupt(sensorInt, pulseCounter, FALLING);
 
-  // Setup Turbidity
-    // set up the ADC
-  ADCSRA &= ~PS_128;  // remove bits set by Arduino library
-
-  // you can choose a prescaler from above.
-  // PS_16, PS_32, PS_64 or PS_128
-  ADCSRA |= PS_64;    // set our own prescaler to 64
-  
   Serial.println();
 }
 
 void loop()
 {
   bacaWaterFlow();
-  bacaTurbidity();
-  bacaPh();
+  //bacaTurbidity();
+  //bacaPh();
   
-  if (runEvery(3000)) { // repeat every 3000 millis
+  if (runEvery(2000)) { // repeat every 3000 millis
     readGps();
   
-    if (status_gps == true) {
-      doc["data"]["latitude"] = LatitudeString;
-      doc["data"]["longitude"] = LongitudeString;
-    } else {
-      doc["data"]["latitude"] = NULL;
-      doc["data"]["longitude"] = NULL;
+    if (status_gps == false) {
+      LatitudeString = "0";
+      LongitudeString = "0";
     }
 
-    String json_message;
-    serializeJson(doc, json_message);
-    serializeJson(doc, Serial);
-
-    Serial.println();
+    String msg = (String) serialNumber + "#" + (String) LatitudeString + "#" + (String) LongitudeString + "#" + (String) totalmlt + "#" + (String) ntu + "#" + String(phValue, 2) + "#OK";
     
-    LoRa_sendMessage(json_message); // send a message
+    Serial.println();
+
+    Serial.println("Kirim ke Gateway : " + msg);
+    LoRa_sendMessage(msg); // send a message
   }
 
   delay(200);
@@ -173,24 +144,13 @@ void readGps() {
 }
 
 void consumeJson(String message) {
-  int str_len = message.length() + 1;
-  char json[str_len];
+  String respon = getValue(message, '&', 1);
+
+  Serial.print("Baca data dari gateway : ");
+  Serial.println(respon);
   
-  message.toCharArray(json, str_len);
-
-  DynamicJsonDocument doc_2(1024);
-
-  DeserializationError error = deserializeJson(doc_2, json);
-
-  // Test if parsing succeeds.
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    return;
-  }
-
-  String statusPelanggan = doc_2[serialNumber][0];
-  String statusSelenoid = doc_2[serialNumber][1];
+  String statusPelanggan = getValue(respon, '#', 1);
+  String statusSelenoid = getValue(respon, '#', 2);
 
   // Print values.
   Serial.println("Status Pelanggan : " + statusPelanggan);
@@ -225,8 +185,6 @@ void bacaWaterFlow() {
     Serial.print(totalmlt);
     Serial.println("mL");
 
-    doc["data"]["volume"] = totalmlt;
-
     pulseCount = 0;
 
     attachInterrupt(sensorInt, pulseCounter, FALLING);
@@ -245,38 +203,26 @@ void bacaTurbidity() {
   {
     oldTime2 = millis();
     
-    unsigned int i;
-    unsigned int z;
-    z = 0;
-     
-    // capture the values to memory
-    for(i = 0; i < 300; i++) {
-      start_times[i] = micros();
-      values[i] = analogRead(pinTurbidity);             
-   
-      if (values[i] >= z) {
-        z = values[i]; 
-      }
-     
-      stop_times[i] = micros();
+    int sensorValue = analogRead(pinTurbidity);
+    teg = sensorValue * (5.0 / 1024.0);
+    ntu = 100 - (sensorValue / 10.24) - kalibrasi;
+
+    if (ntu < 0) {
+      ntu = 0;
     }
-   
-    float ntu = (z - 912.5) / -0.279;
-      
-    Serial.print("ADC : ");
-    Serial.println(z);
-   
+  
+    Serial.print("Sensor Turbidity Output (V) : ");
+    Serial.println(teg);
     Serial.print("NTU : ");
     Serial.println(ntu);
-
-    doc["data"]["ntu"] = ntu;
+    Serial.print("\n");
     
     Serial.println();
   }
 }
 
 void bacaPh() {
-  if ((millis() - oldTime3) > 1000)
+  if ((millis() - oldTime3) > 5000)
   {
     oldTime3 = millis();
 
@@ -305,13 +251,11 @@ void bacaPh() {
       avgValue+=buf[i];
     }
     
-    float phValue = (float) avgValue * 5.0 / 1024 / 6; //convert the analog into millivolt
+    phValue = (float) avgValue * 5.0 / 1024 / 6; //convert the analog into millivolt
     phValue = 3.5 * phValue;                      //convert the millivolt into pH value
     
-    Serial.print("pH:");  
+    Serial.print("pH : ");  
     Serial.println(phValue, 2);
- 
-    doc["data"]["ph"] = phValue, 2;
     
     Serial.println();
   }
@@ -335,15 +279,12 @@ void LoRa_sendMessage(String message) {
 }
 
 void onReceive(int packetSize) {
-  if (runEvery2(5000)) {
+  if (runEvery2(3000)) {
     String message = "";
 
     while (LoRa.available()) {
       message += (char)LoRa.read();
     }
-  
-    Serial.print("Baca data dari gateway : ");
-    Serial.println(message);
   
     consumeJson(message);
   }
@@ -377,4 +318,21 @@ boolean runEvery2(unsigned long interval)
     return true;
   }
   return false;
+}
+
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.length()-1;
+ 
+  for(int i=0; i <= maxIndex && found <= index; i++){
+    if(data.charAt(i) == separator || i == maxIndex){
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  } 
+ 
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }

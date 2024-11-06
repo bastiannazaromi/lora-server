@@ -18,7 +18,7 @@ class Pelanggan extends CI_Controller
 			}
 		}
 
-		echo implode('|-|', $res) . '|-|OK';
+		echo implode('&', $res) . '&OK';
 	}
 }
 

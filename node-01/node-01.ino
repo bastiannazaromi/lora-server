@@ -144,9 +144,9 @@ void readGps() {
 }
 
 void consumeJson(String message) {
-  String respon = getValue(message, '|-|', 0);
+  String respon = getValue(message, '&', 0);
 
-  Serial.print("Baca data dari gateway l : ");
+  Serial.print("Baca data dari gateway : ");
   Serial.println(respon);
   
   String statusPelanggan = getValue(respon, '#', 1);
