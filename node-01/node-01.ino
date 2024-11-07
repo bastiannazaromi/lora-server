@@ -22,7 +22,7 @@ boolean status_gps = false;
 // WATER FLOW
 byte sensorInt    = 1;
 byte flowsensor   = 3;
-float konstanta   = 6; //konstanta flow meter
+float konstanta   = 9.5; //konstanta flow meter
 volatile byte pulseCount;
 float debit;
 unsigned int flowmlt;
@@ -154,11 +154,14 @@ void consumeJson(String message) {
 
   // Print values.
   Serial.println("Status Pelanggan : " + statusPelanggan);
-  Serial.println("Status Selenoid : " + statusSelenoid);
 
   if (statusSelenoid == "ON") {
+    Serial.println("Status Kran : Tutup");
+    
     digitalWrite(pinSelenoid, HIGH);
   } else {
+    Serial.println("Status Kran : Buka");
+    
     digitalWrite(pinSelenoid, LOW);
   }
 
