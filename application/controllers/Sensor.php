@@ -19,7 +19,7 @@ class Sensor extends CI_Controller
 		$this->db->select('sensor.*, pelanggan.nama');
 		$this->db->join('pelanggan', 'pelanggan.serialNumber = sensor.serialNumber', 'inner');
 
-		$this->db->order_by('sensor.id', 'desc');
+		$this->db->order_by('sensor.createdAt', 'desc');
 		$sensor = $this->db->get('sensor')->result();
 
 		$data = [

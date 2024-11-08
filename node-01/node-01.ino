@@ -45,7 +45,7 @@ unsigned long oldTime3;
 
 #define pinSelenoid 7
 
-String serialNumber = "node-01";
+String serialNumber = "node-02";
 
 void setup()
 {
