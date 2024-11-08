@@ -57,7 +57,7 @@
 												<td><?php echo $dt->nama; ?></td>
 												<td><?php echo $dt->latitude; ?></td>
 												<td><?php echo $dt->longitude; ?></td>
-												<td><?php echo date('H:i:s', strtotime($dt->updatedAt)); ?></td>
+												<td><?php echo date('d M Y - H:i:s', strtotime($dt->updatedAt)); ?></td>
 											</tr>
 										<?php endforeach; ?>
 									</tbody>
