@@ -31,8 +31,11 @@ unsigned long oldTime;
 float liter       = 0;
 
 // Turbidity
-int pinTurbidity = A0;
-float ntu, teg, kalibrasi = 11.0;
+int pinTurb = A0;
+float V;
+float ntu;
+float VRata2;
+float VHasil;
 
 unsigned long oldTime2;
 
@@ -52,6 +55,7 @@ void setup()
   Serial.begin(9600);
   SerialGPS.begin(9600);
 
+  Serial.println();
   Serial.println("Starting Machine");
 
   LoRa.setPins(csPin, resetPin, irqPin);
@@ -89,9 +93,9 @@ void setup()
 
 void loop()
 {
-  //bacaWaterFlow();
-  //bacaTurbidity();
-  //bacaPh();
+  bacaWaterFlow();
+  bacaTurbidity();
+  bacaPh();
   
   if (runEvery(2000)) { // repeat every 3000 millis
     readGps();
@@ -206,19 +210,36 @@ void bacaTurbidity() {
   {
     oldTime2 = millis();
     
-    int sensorValue = analogRead(pinTurbidity);
-    teg = sensorValue * (5.0 / 1024.0);
-    ntu = 100 - (sensorValue / 10.24) - kalibrasi;
+    V = 0;
+    for(int i = 0; i < 800; i++)
+    {
+      V += ((float)analogRead(pinTurb) / 1023) * 5;
+    }
+  
+    VRata2 = V / 800;
+    VHasil = roundf(VRata2 * 10.0f) / 10.0f;
+  
+    if(VHasil < 2.5)
+    {
+      ntu = 3000;
+    }
+    else
+    {
+      ntu = -1120.4 * square(VHasil) + 5742.3 * VHasil - 4353.8;
+    }
 
     if (ntu < 0) {
       ntu = 0;
     }
   
-    Serial.print("Sensor Turbidity Output (V) : ");
-    Serial.println(teg);
-    Serial.print("NTU : ");
-    Serial.println(ntu);
-    Serial.print("\n");
+    Serial.print("Tegangan : ");
+    Serial.print(VHasil);
+    Serial.print(" V");
+  
+    Serial.print("\t kekeruhan : ");
+    Serial.print(ntu);
+    Serial.println(" ntu");
+    delay(10);
     
     Serial.println();
   }
