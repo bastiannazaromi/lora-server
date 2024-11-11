@@ -13,7 +13,7 @@ const int irqPin = 2;          // change for your board; must be a hardware inte
 #include <SoftwareSerial.h>
 
 TinyGPSPlus gps;
-SoftwareSerial SerialGPS(4, 5); 
+SoftwareSerial SerialGPS(4, 5);
 
 float Latitude , Longitude;
 String LatitudeString, LongitudeString;
@@ -272,7 +272,7 @@ void bacaPh() {
     avgValue = 0;
     
     for (int i = 2; i < 8; i++) {                      //take the average value of 6 center sample
-      avgValue+=buf[i];
+      avgValue += buf[i];
     }
     
     phValue = (float) avgValue * 5.0 / 1024 / 6; //convert the analog into millivolt
