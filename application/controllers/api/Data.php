@@ -58,6 +58,7 @@ class Data extends CI_Controller
 				}
 			}
 		} else if (($ph != null || $ph != 0) && ($ntu != null || $ntu != '')) {
+			$this->db->where('serialNumber', $serialNumber);
 			$this->db->order_by('id', 'desc');
 			$cek = $this->db->get('sensor', 1)->row();
 
