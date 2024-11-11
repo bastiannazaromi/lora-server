@@ -95,6 +95,7 @@ class Data extends CI_Controller
 			}
 		} else if ($volume != null) {
 			$date = date('Y-m-d');
+			$this->db->where('serialNumber', $serialNumber);
 			$this->db->where('tanggal', $date);
 			$this->db->order_by('tanggal', 'desc');
 			$cek = $this->db->get('waterflow', 1)->row();
