@@ -9,8 +9,8 @@ const int irqPin = 26;        // change for your board; must be a hardware inter
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char *ssid = "PoltekHarber_Lab1";
-const char *password = "poltekharber";
+const char *ssid = "Tselhome-ADC8";
+const char *password = "61881538";
 
 String host = "https://loraswat.com/api/";
 String urlGetPelanggan = host + "pelanggan/get";

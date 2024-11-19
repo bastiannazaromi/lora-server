@@ -22,7 +22,7 @@ boolean status_gps = false;
 // WATER FLOW
 byte sensorInt    = 1;
 byte flowsensor   = 3;
-float konstanta   = 9.5; //konstanta flow meter
+float konstanta   = 5.6; //konstanta flow meter
 volatile byte pulseCount;
 float debit;
 unsigned int flowmlt;
